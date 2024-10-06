@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with PDFs</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('{% static 'images/file.jpg' %}')
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="file"], input[type="text"] {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            width: 100%;
+            font-size: 14px;
+            transition: border 0.3s ease;
+        }
+        input[type="text"]:focus, input[type="file"]:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        button[type="submit"] {
+            padding: 12px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .chat-history {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        .progress-indicator {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #ffeb3b;
+            border-radius: 25px;
+            text-align: center;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+            display: none; /* Hidden by default */
+        }
+        .progress-complete {
+            background-color: #4caf50;
+            color: white;
+        }
+        .msg{
+            text-align:center;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>Upload File</h1>
+        
+        <form id="chat-form" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="pdf_files" accept=".pdf" multiple>
+            <button type="submit">Send</button>
+        </form>
+
+        <!-- Progress Indicator -->
+        <div id="progress-indicator" class="progress-indicator">
+            Uploading...
+        </div>
+        
+        <div class="chat-history" id="chat-history">
+
+            {% if chat_history %}
+                {% for message in chat_history %}
+                    <div class="chat-message {% if forloop.counter0|divisibleby:2 %}user{% else %}bot{% endif %}">
+                        <div class="message">{{ message }} </div>
+                    </div>
+                    
+                {% endfor %}
+            {% endif %}
+            <div class="msg">
+            {% if message %}
+                {{ message }}<br><br>
+                <a href="{% url 'handle_user_question' %}">Ask a Question</a>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('chat-form');
+        const progressIndicator = document.getElementById('progress-indicator');
+
+        // Event listener to show progress when the form is submitted
+        form.addEventListener('submit', function () {
+            // Show the uploading state
+            progressIndicator.style.display = 'block';
+            progressIndicator.innerText = 'Uploading...';
+
+            // Simulate file upload progress
+            setTimeout(() => {
+                progressIndicator.innerText = 'Processing...';
+            }, 200);
+
+            // Allow the form to submit (remove preventDefault to enable real form submission)
+            return true; // This will let the form be submitted to the server
+        });
+    </script>
+</body>
+</html> 
